@@ -3,42 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STMFD SMART EMS - Address Verifier</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <title>AMFEMS-VERITAS // EMS Address Verifier</title>
     
     <style>
         :root {
-            --primary-color: #b30000; /* Fire/EMS Red */
-            --secondary-color: #1a1a1a;
-            --bg-color: #f4f4f9;
+            --amfems-red: #c8102e;
+            --amfems-dark: #121820;
+            --amfems-gray: #f4f6f8;
+            --amfems-border: #e1e5eb;
         }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            background-color: var(--bg-color);
+            background-color: var(--amfems-gray);
+            color: #2c3e50;
         }
 
         header {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 12px 20px;
+            background-color: var(--amfems-dark);
+            color: #ffffff;
+            padding: 14px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 4px solid var(--primary-color);
+            border-bottom: 4px solid var(--amfems-red);
+        }
+
+        header .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         header h1 {
-            margin: 0;
-            font-size: 1.25rem;
-            letter-spacing: 0.5px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+        }
+
+        header .badge {
+            background-color: var(--amfems-red);
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
         .main-container {
@@ -55,240 +73,261 @@
 
         /* Sidebar Control Panel */
         .sidebar {
-            width: 380px;
-            background: white;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            width: 400px;
+            background: #ffffff;
+            padding: 24px;
+            border-right: 1px solid var(--amfems-border);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
+            z-index: 2;
         }
 
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
-                max-height: 45vh;
-                box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+                max-height: 50vh;
+                border-right: none;
+                border-top: 1px solid var(--amfems-border);
             }
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-        }
-
-        label {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #333;
-        }
-
-        .search-box {
-            display: flex;
             gap: 8px;
         }
 
+        label {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.95rem;
-        }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background-color: #800000;
-        }
-
-        /* Result Card */
-        #result-card {
-            padding: 15px;
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e0;
             border-radius: 6px;
-            background: #f9f9f9;
-            border-left: 5px solid #ccc;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--amfems-red);
+            box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.15);
+        }
+
+        /* Verification Result Card */
+        #result-card {
+            padding: 18px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 6px solid #cbd5e0;
             display: none;
         }
 
         #result-card.in-district {
-            background: #e6f4ea;
-            border-left-color: #137333;
-            color: #0d652d;
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            border-left-color: #16a34a;
+            color: #14532d;
         }
 
         #result-card.out-district {
-            background: #fce8e6;
-            border-left-color: #c5221f;
-            color: #a50e0e;
+            background: #fef2f2;
+            border-color: #fecaca;
+            border-left-color: #dc2626;
+            color: #7f1d1d;
         }
 
-        .status-title {
-            font-weight: bold;
-            font-size: 1rem;
-            margin-bottom: 4px;
+        .status-header {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Map Container */
+        .status-details {
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
+        .coords {
+            font-family: monospace;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        /* Map Element */
         #map {
             flex: 1;
             height: 100%;
+            width: 100%;
+        }
+
+        .footer-note {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--amfems-border);
         }
     </style>
+
+    <!-- Google Maps API with Places Library -->
+    <!-- REPLACE YOUR_GOOGLE_MAPS_API_KEY WITH YOUR ACTUAL API KEY -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
 </head>
 <body>
 
     <header>
-        <h1>STMFD SMART EMS // Address Verifier</h1>
-        <span style="font-size: 0.85rem; opacity: 0.8;">District Boundary & Routing Tool</span>
+        <div class="brand">
+            <h1>AMFEMS-VERITAS</h1>
+            <span class="badge">EMS Boundary Check</span>
+        </div>
+        <span style="font-size: 0.85rem; opacity: 0.85;">Anchorage Middletown Fire & EMS</span>
     </header>
 
     <div class="main-container">
         <!-- Sidebar Controls -->
         <div class="sidebar">
             <div class="form-group">
-                <label for="address-input">Enter Incident Address:</label>
-                <div class="search-box">
-                    <input type="text" id="address-input" placeholder="e.g., 240 Sears Ave, Louisville, KY">
-                    <button id="search-btn">Verify</button>
-                </div>
+                <label for="address-input">Incident Address Lookup</label>
+                <input type="text" id="address-input" placeholder="Type location or address...">
             </div>
 
             <div id="result-card">
-                <div class="status-title" id="status-title">Checking...</div>
-                <div id="status-details"></div>
+                <div class="status-header" id="status-header">Checking...</div>
+                <div class="status-details" id="status-details"></div>
+                <div class="coords" id="status-coords"></div>
             </div>
 
-            <div style="font-size: 0.8rem; color: #666; margin-top: auto; border-top: 1px solid #eee; padding-top: 10px;">
-                Tip: You can also click anywhere directly on the map to query boundary status for coordinates.
+            <div class="footer-note">
+                <strong>Instructions:</strong> Search an address using the Google Places lookup above or click anywhere directly on the map to evaluate coordinates against the primary EMS response polygon.
             </div>
         </div>
 
-        <!-- Interactive Map -->
+        <!-- Google Map Container -->
         <div id="map"></div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Turf.js for spatial point-in-polygon analysis -->
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-
     <script>
-        // 1. Initialize Map centered around St. Matthews / Louisville area
-        const map = L.map('map').setView([38.2527, -85.6320], 13);
+        let map;
+        let emsPolygon;
+        let activeMarker;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+        // 1. Defined EMS Response Area Polygon
+        // Paste/replace coordinates array below with your exact GeoJSON boundary coordinates [lat, lng]
+        const emsResponseBoundary = [
+            { lat: 38.2750, lng: -85.5800 },
+            { lat: 38.2750, lng: -85.4800 },
+            { lat: 38.2100, lng: -85.4800 },
+            { lat: 38.2100, lng: -85.5800 }
+        ];
 
-        // 2. Define STMFD District Boundary GeoJSON (Replace or expand this Polygon with actual district polygon coordinates)
-        let districtFeature = {
-            "type": "Feature",
-            "properties": { "name": "St. Matthews Fire Protection District" },
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [[
-                    [-85.6550, 38.2650],
-                    [-85.6100, 38.2650],
-                    [-85.6100, 38.2350],
-                    [-85.6550, 38.2350],
-                    [-85.6550, 38.2650]
-                ]]
-            }
-        };
+        function initMap() {
+            // Center near Anchorage Middletown response coverage area
+            const defaultCenter = { lat: 38.2430, lng: -85.5300 };
 
-        // Style and add district boundary layer to map
-        const districtLayer = L.geoJSON(districtFeature, {
-            style: {
-                color: '#b30000',
-                weight: 3,
-                fillColor: '#b30000',
-                fillOpacity: 0.15
-            }
-        }).addTo(map);
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: defaultCenter,
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                fullscreenControl: false,
+                streetViewControl: false
+            });
 
-        let activeMarker = null;
+            // 2. Draw the EMS Response Area Polygon
+            emsPolygon = new google.maps.Polygon({
+                paths: emsResponseBoundary,
+                strokeColor: "#c8102e",
+                strokeOpacity: 0.85,
+                strokeWeight: 2,
+                fillColor: "#c8102e",
+                fillOpacity: 0.15,
+                map: map
+            });
 
-        // 3. Evaluation Function (Point-in-Polygon check via Turf.js)
-        function checkLocation(lat, lng, label = "Selected Location") {
-            const point = turf.point([lng, lat]);
-            const polygon = turf.polygon(districtFeature.geometry.coordinates);
-            const isInDistrict = turf.booleanPointInPolygon(point, polygon);
+            // 3. Set up Google Places Autocomplete on input
+            const input = document.getElementById("address-input");
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                componentRestrictions: { country: "us" },
+                fields: ["formatted_address", "geometry", "name"]
+            });
 
-            // Update or create marker on map
-            if (activeMarker) {
-                map.removeLayer(activeMarker);
-            }
-            activeMarker = L.marker([lat, lng]).addTo(map)
-                .bindPopup(`<b>${label}</b><br>${isInDistrict ? '🟢 In District' : '🔴 Out of District'}`)
-                .openPopup();
-
-            map.setView([lat, lng], 15);
-
-            // Update UI card
-            const card = document.getElementById('result-card');
-            const title = document.getElementById('status-title');
-            const details = document.getElementById('status-details');
-
-            card.style.display = 'block';
-            if (isInDistrict) {
-                card.className = 'in-district';
-                title.innerText = 'IN DISTRICT';
-                details.innerHTML = `Address verified inside <b>St. Matthews Fire Protection District</b>.<br><small>Lat/Lng: ${lat.toFixed(4)}, ${lng.toFixed(4)}</small>`;
-            } else {
-                card.className = 'out-district';
-                title.innerText = 'OUT OF DISTRICT / MUTUAL AID';
-                details.innerHTML = `Location falls outside primary response boundaries.<br><small>Lat/Lng: ${lat.toFixed(4)}, ${lng.toFixed(4)}</small>`;
-            }
-        }
-
-        // 4. Geocoding Search handler (Nominatim API)
-        async function searchAddress() {
-            const query = document.getElementById('address-input').value;
-            if (!query) return;
-
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data && data.length > 0) {
-                    const lat = parseFloat(data[0].lat);
-                    const lng = parseFloat(data[0].lon);
-                    checkLocation(lat, lng, data[0].display_name);
-                } else {
-                    alert('Address not found. Please check spelling or click directly on the map.');
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    alert("No details available for input: '" + place.name + "'");
+                    return;
                 }
-            } catch (error) {
-                console.error('Geocoding error:', error);
-                alert('Error connecting to geocoding service.');
-            }
+
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+                const addressName = place.formatted_address || place.name;
+
+                evaluateLocation(lat, lng, addressName);
+            });
+
+            // 4. Map click event listener for manual coordinate pin drop
+            map.addListener("click", (e) => {
+                const lat = e.latLng.lat();
+                const lng = e.latLng.lng();
+                evaluateLocation(lat, lng, "Dropped Map Pin");
+            });
         }
 
-        // Event listeners
-        document.getElementById('search-btn').addEventListener('click', searchAddress);
-        document.getElementById('address-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') searchAddress();
-        });
+        // 5. Check if Lat/Lng is inside EMS Response Area Polygon
+        function evaluateLocation(lat, lng, label) {
+            const latLngPoint = new google.maps.LatLng(lat, lng);
+            
+            // Native Google Maps API point-in-polygon check
+            const isInEmsArea = google.maps.geometry.poly.containsLocation(latLngPoint, emsPolygon);
 
-        // Click on map to test coordinates
-        map.on('click', function(e) {
-            checkLocation(e.latlng.lat, e.latlng.lng, "Dropped Pin");
-        });
+            // Update Marker
+            if (activeMarker) {
+                activeMarker.setMap(null);
+            }
+
+            activeMarker = new google.maps.Marker({
+                position: latLngPoint,
+                map: map,
+                title: label,
+                animation: google.maps.Animation.DROP
+            });
+
+            map.panTo(latLngPoint);
+            if (map.getZoom() < 14) map.setZoom(14);
+
+            // Update Result UI
+            const card = document.getElementById("result-card");
+            const header = document.getElementById("status-header");
+            const details = document.getElementById("status-details");
+            const coords = document.getElementById("status-coords");
+
+            card.style.display = "block";
+
+            if (isInEmsArea) {
+                card.className = "in-district";
+                header.innerHTML = "🟢 IN EMS RESPONSE AREA";
+                details.innerHTML = `Address <strong>${label}</strong> is inside the primary AMFEMS response district boundaries.`;
+            } else {
+                card.className = "out-district";
+                header.innerHTML = "🔴 OUT OF EMS AREA";
+                details.innerHTML = `Address <strong>${label}</strong> is outside the primary AMFEMS response district boundaries. Direct for Mutual Aid or secondary routing.`;
+            }
+
+            coords.innerText = `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;
+        }
     </script>
 </body>
 </html>
