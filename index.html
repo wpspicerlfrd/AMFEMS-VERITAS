@@ -197,6 +197,15 @@
       background-color: currentColor;
     }
 
+    /* Override Google Autocomplete dropdown styling & layer order */
+    .pac-container {
+      z-index: 99999 !important;
+      border-radius: 8px;
+      margin-top: 4px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      font-family: 'Inter', sans-serif;
+    }
+
     /* Main Container & Map */
     main {
       flex-grow: 1;
@@ -338,8 +347,8 @@
     </div>
   </div>
 
-  <!-- Google Maps JavaScript API (Replace YOUR_API_KEY) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCnFOrSS9cHJjJOKQ8Nsp0unHZs_IsYu0&libraries=places,geometry&callback=initMap" async defer></script>
+  <!-- Google Maps JavaScript API (Replace YOUR_API_KEY if needed) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCnFOrSS9cHJjJOKQ8Nsp0unHZs_IsYu0&libraries=places,geometry&v=weekly&callback=initMap" async defer></script>
 
   <script>
     let map;
@@ -347,7 +356,7 @@
     let marker;
     let geofencePolygon;
 
-    // Explicitly closed geofence ring
+    // Explicitly closed geofence ring (St. Matthews Response Territory)
     const geofenceCoords = [
       { lat: 38.286491, lng: -85.678947 },
       { lat: 38.285471, lng: -85.678176 },
@@ -586,7 +595,7 @@
       { lat: 38.260234, lng: -85.576964 },
       { lat: 38.260375, lng: -85.577166 },
       { lat: 38.260554, lng: -85.577408 },
-      { lat: 38.286491, lng: -85.678947 } // Closed polygon vertex
+      { lat: 38.286491, lng: -85.678947 } // Polygon closing vertex
     ];
 
     function initMap() {
@@ -612,13 +621,16 @@
         map: map
       });
 
-      // Frame the District Boundary on Map Load
-      resetMap();
+      // Calculate bounding box to frame the polygon cleanly on load
+      const bounds = new google.maps.LatLngBounds();
+      geofenceCoords.forEach(coord => bounds.extend(coord));
+      map.fitBounds(bounds);
 
-      // Initialize Address Autocomplete
+      // Initialize Address Autocomplete with regional bias towards St. Matthews / Jefferson Co.
       const input = document.getElementById("addressInput");
       autocomplete = new google.maps.places.Autocomplete(input, {
         componentRestrictions: { country: "us" },
+        bounds: bounds, // Bias suggestions to district view
         fields: ["geometry", "formatted_address"]
       });
 
