@@ -1,10 +1,10 @@
 {
-  "id": "/AMFEMS-VERITAS/",
+  "id": "amfems-veritas-app-v1",
   "name": "AMFEMS VERITAS",
   "short_name": "VERITAS",
   "description": "AMFEMS EMS District Boundary Verifier",
-  "start_url": "/AMFEMS-VERITAS/index.html",
-  "scope": "/AMFEMS-VERITAS/",
+  "start_url": "./index.html?app=veritas",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f4f6f8",
   "theme_color": "#0d233a",
