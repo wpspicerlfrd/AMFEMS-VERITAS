@@ -58,6 +58,7 @@
             font-weight: 600;
             padding: 4px 8px;
             border-radius: 4px;
+            cursor: pointer;
         }
 
         .nav-tab.active {
@@ -110,10 +111,10 @@
             background-color: #07192c;
         }
 
-        /* Status Result Banner */
+        /* Status Result Banner & Action Button */
         #statusBanner {
             display: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 6px;
             text-align: center;
             font-weight: 600;
@@ -131,6 +132,23 @@
             background-color: #f8d7da;
             color: #842029;
             border: 1px solid #f5c2c7;
+        }
+
+        .btn-directions {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #0a2540;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-directions:hover {
+            background-color: #07192c;
         }
 
         /* Map Container */
@@ -200,6 +218,86 @@
             background-color: #f8d7da;
             color: #842029;
         }
+
+        /* Share Modal Styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0d233a;
+        }
+
+        .modal-body {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .share-btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .btn-modal {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #0a2540;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #333;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        #qrCodeContainer img {
+            margin: 10px auto;
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 6px;
+        }
     </style>
 
     <!-- Load coordinates file -->
@@ -216,8 +314,8 @@
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <a href="#" class="nav-tab active">District Verifier</a>
-        <a href="#" class="nav-tab">Share App</a>
+        <span class="nav-tab active" onclick="switchTab('verifier')">District Verifier</span>
+        <span class="nav-tab" onclick="openShareModal()">Share App</span>
     </div>
 
     <!-- Search Section -->
@@ -230,7 +328,10 @@
     </div>
 
     <!-- Status Result -->
-    <div id="statusBanner"></div>
+    <div id="statusBanner">
+        <div id="statusText"></div>
+        <a id="directionsBtn" class="btn-directions" target="_blank" style="display:none;">📍 Get Directions to Address</a>
+    </div>
 
     <!-- Google Map -->
     <div id="map"></div>
@@ -245,6 +346,23 @@
     </div>
 </div>
 
+<!-- Share App Modal -->
+<div id="shareModal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeShareModal()">&times;</span>
+        <div class="modal-title">Share AMFEMS VERITAS</div>
+        <div class="modal-body">Scan the QR code or copy the web link to share this verification tool.</div>
+        
+        <div id="qrCodeContainer"></div>
+
+        <div class="share-btn-group">
+            <button class="btn-modal btn-primary" onclick="copyAppUrl()">📋 Copy Link</button>
+            <button class="btn-modal btn-secondary" id="nativeShareBtn" onclick="triggerNativeShare()" style="display:none;">📤 Share</button>
+        </div>
+        <div id="copyAlert" style="font-size: 12px; color: #0f5132; display: none; font-weight: 600;">Link copied to clipboard!</div>
+    </div>
+</div>
+
 <script>
     let map;
     let geofencePolygon;
@@ -252,7 +370,6 @@
     let autocomplete;
 
     function initMap() {
-        // Ensure coordinates loaded from geofence.js
         if (typeof geofenceCoords === 'undefined' || !geofenceCoords.length) {
             alert("Geofence coordinates not found. Please verify geofence.js is in the repository root.");
             return;
@@ -308,16 +425,24 @@
         // Check if point is inside Polygon
         const isInside = google.maps.geometry.poly.containsLocation(location, geofencePolygon);
         
-        // Show Status Banner
+        // Show Status Banner & Navigation Button
         const banner = document.getElementById("statusBanner");
+        const statusText = document.getElementById("statusText");
+        const directionsBtn = document.getElementById("directionsBtn");
+        
         banner.style.display = "block";
         if (isInside) {
             banner.className = "in-district";
-            banner.innerHTML = "✅ IN DISTRICT: Address is WITHIN the service area.";
+            statusText.innerHTML = "✅ IN DISTRICT: Address is WITHIN the service area.";
         } else {
             banner.className = "out-district";
-            banner.innerHTML = "❌ OUT OF DISTRICT: Address is OUTSIDE the service area.";
+            statusText.innerHTML = "❌ OUT OF DISTRICT: Address is OUTSIDE the service area.";
         }
+
+        // Build Navigation URL for Google Maps
+        const encodedAddress = encodeURIComponent(place.formatted_address);
+        directionsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+        directionsBtn.style.display = "inline-block";
 
         // Add to search history
         addSearchHistory(place.formatted_address, isInside);
@@ -341,6 +466,46 @@
     function clearHistory() {
         document.getElementById("historyList").innerHTML = 
             '<div style="font-size: 12px; color: #888; text-align: center; padding: 10px;">No recent searches</div>';
+    }
+
+    /* Share App Functions */
+    function openShareModal() {
+        const modal = document.getElementById("shareModal");
+        const qrContainer = document.getElementById("qrCodeContainer");
+        const currentUrl = window.location.href;
+
+        // Generate QR code dynamically via Google Charts API
+        qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}" alt="App QR Code" />`;
+
+        // Check for Web Share API support
+        if (navigator.share) {
+            document.getElementById("nativeShareBtn").style.display = "inline-block";
+        }
+
+        modal.style.display = "flex";
+    }
+
+    function closeShareModal() {
+        document.getElementById("shareModal").style.display = "none";
+        document.getElementById("copyAlert").style.display = "none";
+    }
+
+    function copyAppUrl() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            const alert = document.getElementById("copyAlert");
+            alert.style.display = "block";
+            setTimeout(() => { alert.style.display = "none"; }, 3000);
+        });
+    }
+
+    function triggerNativeShare() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'AMFEMS VERITAS',
+                text: 'Check addresses against the AMFEMS EMS District Boundary.',
+                url: window.location.href
+            }).catch(() => {});
+        }
     }
 </script>
 
