@@ -82,43 +82,38 @@
             margin-bottom: 15px;
         }
 
-        /* Input Controls with Integrated Clear Button */
+        /* Input Controls */
         .search-box {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            flex-grow: 1;
-            display: flex;
             align-items: center;
         }
 
-        .input-wrapper input {
-            width: 100%;
-            padding: 10px 36px 10px 12px;
+        .search-box input {
+            flex-grow: 1;
+            padding: 10px 12px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
         }
 
-        .clear-input-btn {
-            position: absolute;
-            right: 10px;
-            cursor: pointer;
-            color: #888;
-            font-size: 18px;
+        .btn-clear-address {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
             font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
             display: none;
-            user-select: none;
-            line-height: 1;
-            padding: 2px 4px;
+            white-space: nowrap;
         }
 
-        .clear-input-btn:hover {
-            color: #333;
+        .btn-clear-address:hover {
+            background-color: #cbd5e1;
+            color: #1e293b;
         }
 
         .btn-verify {
@@ -349,10 +344,8 @@
     <div class="section-desc">Enter an address to verify if it falls within the AMFEMS service area.</div>
 
     <div class="search-box">
-        <div class="input-wrapper">
-            <input id="autocomplete" type="text" placeholder="Enter address to check..." oninput="toggleClearButton()">
-            <span id="clearInputBtn" class="clear-input-btn" onclick="clearAddressInput()" title="Clear Address">&times;</span>
-        </div>
+        <input id="autocomplete" type="text" placeholder="Enter address to check...">
+        <button id="clearAddressBtn" class="btn-clear-address" onclick="clearAddressInput()" title="Clear Address">✕ Clear</button>
         <button class="btn-verify" onclick="verifyAddress()">Verify Address</button>
     </div>
 
@@ -393,7 +386,7 @@
 </div>
 
 <script>
-    // Register and update Service Worker
+    // Service Worker Registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -435,27 +428,35 @@
         });
         geofencePolygon.setMap(map);
 
-        // Auto-fit bounds to frame boundary
+        // Auto-fit bounds
         const bounds = new google.maps.LatLngBounds();
         geofenceCoords.forEach(coord => bounds.extend(coord));
         map.fitBounds(bounds);
 
-        // Setup Places Autocomplete
+        // Setup Autocomplete & Event Listeners
         const input = document.getElementById("autocomplete");
         autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo("bounds", map);
         autocomplete.addListener("place_changed", verifyAddress);
+
+        // Listen for input changes directly
+        input.addEventListener("keyup", checkInputChange);
+        input.addEventListener("change", checkInputChange);
     }
 
-    function toggleClearButton() {
+    function checkInputChange() {
         const input = document.getElementById("autocomplete");
-        const clearBtn = document.getElementById("clearInputBtn");
-        clearBtn.style.display = input.value.trim().length > 0 ? "block" : "none";
+        const clearBtn = document.getElementById("clearAddressBtn");
+        if (input.value.trim().length > 0) {
+            clearBtn.style.display = "inline-block";
+        } else {
+            clearBtn.style.display = "none";
+        }
     }
 
     function clearAddressInput() {
         const input = document.getElementById("autocomplete");
-        const clearBtn = document.getElementById("clearInputBtn");
+        const clearBtn = document.getElementById("clearAddressBtn");
         const banner = document.getElementById("statusBanner");
 
         input.value = "";
@@ -483,6 +484,9 @@
         }
 
         const location = place.geometry.location;
+
+        // Show clear button once address verified
+        document.getElementById("clearAddressBtn").style.display = "inline-block";
 
         // Center map on search location
         map.setCenter(location);
