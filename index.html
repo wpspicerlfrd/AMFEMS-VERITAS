@@ -201,6 +201,9 @@
             color: #842029;
         }
     </style>
+
+    <!-- Load coordinates file -->
+    <script src="geofence.js"></script>
 </head>
 <body>
 
@@ -247,16 +250,11 @@
     let geofencePolygon;
     let marker;
     let autocomplete;
-    let geofenceCoords = [];
 
-    async function initMap() {
-        // Fetch coordinates from dedicated geofence.json file in repository
-        try {
-            const response = await fetch('geofence.json');
-            geofenceCoords = await response.json();
-        } catch (error) {
-            console.error("Error loading geofence.json:", error);
-            alert("Could not load geofence.json. Ensure the file is present in your GitHub repository root.");
+    function initMap() {
+        // Ensure coordinates loaded from geofence.js
+        if (typeof geofenceCoords === 'undefined' || !geofenceCoords.length) {
+            alert("Geofence coordinates not found. Please verify geofence.js is in the repository root.");
             return;
         }
 
@@ -307,7 +305,7 @@
             title: place.formatted_address
         });
 
-        // Check if point is inside Polygon using Google Maps Geometry API
+        // Check if point is inside Polygon
         const isInside = google.maps.geometry.poly.containsLocation(location, geofencePolygon);
         
         // Show Status Banner
@@ -346,7 +344,6 @@
     }
 </script>
 
-<!-- Replace YOUR_API_KEY with your actual Google Maps API Key -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCnFOrSS9cHJjJOKQ8Nsp0unHZs_IsYu0&libraries=places,geometry,marker&v=weekly&callback=initMap" async defer></script>
 
 </body>
