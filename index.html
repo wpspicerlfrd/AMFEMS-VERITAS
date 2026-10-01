@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STMFD SMART EMS</title>
+  <title>AMFEMS VERITAS</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,6 +22,7 @@
       height: 420px;
       width: 100%;
       border-radius: 0.375rem;
+      z-index: 1;
     }
   </style>
 </head>
@@ -31,9 +32,14 @@
   <main class="max-w-4xl mx-auto bg-white rounded-lg shadow-md border border-slate-200 p-6 space-y-5">
     
     <!-- Branding Header -->
-    <header class="border-b border-slate-200 pb-3">
-      <h1 class="text-2xl font-black tracking-wide text-slate-900 uppercase">STMFD SMART EMS</h1>
-      <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase mt-0.5">Station Matrix, Allocation & Routing Tool</p>
+    <header class="border-b border-slate-200 pb-3 flex justify-between items-start">
+      <div>
+        <h1 class="text-2xl font-black tracking-wide text-slate-900 uppercase">AMFEMS VERITAS</h1>
+        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase mt-0.5">Anchorage Middletown Fire & EMS Jurisdiction Identifier</p>
+      </div>
+      <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2.5 py-1 rounded border border-slate-200">
+        v2.0
+      </span>
     </header>
 
     <!-- Navigation Tabs -->
@@ -52,7 +58,7 @@
     <!-- Title & Description -->
     <section>
       <h2 class="text-xl font-bold text-slate-900">District Boundary Check</h2>
-      <p class="text-sm text-slate-600 mt-1">Enter an address to verify if it falls within the STMFDKY service area.</p>
+      <p class="text-sm text-slate-600 mt-1">Enter an address to verify if it falls within the AMFEMS service area.</p>
     </section>
 
     <!-- Address Input Form -->
@@ -61,7 +67,7 @@
         <input 
           type="text" 
           id="addressInput" 
-          placeholder="Enter street address (e.g. 4100 Shelbyville Rd)" 
+          placeholder="Enter street address (e.g. 108 Urton Ln)" 
           class="flex-grow border border-slate-300 rounded-md px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition text-sm"
         >
         <button 
@@ -97,15 +103,15 @@
     </section>
 
     <!-- Map Container -->
-    <section class="border border-slate-200 rounded-md overflow-hidden">
+    <section class="border border-slate-200 rounded-md overflow-hidden bg-slate-50">
       <div id="map"></div>
     </section>
 
     <!-- Footer Feedback Buttons -->
     <footer class="pt-4 border-t border-slate-100 flex flex-col items-center space-y-3 text-center">
-      <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">STMFD SMART EMS TESTING FEEDBACK</span>
+      <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">AMFEMS VERITAS TESTING FEEDBACK</span>
       <div class="flex space-x-3">
-        <a href="mailto:feedback@stmatthewsfd.com" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded border border-slate-200 transition flex items-center space-x-1.5">
+        <a href="mailto:feedback@amfems.org" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded border border-slate-200 transition flex items-center space-x-1.5">
           <i class="fa-regular fa-envelope text-slate-400"></i>
           <span>Email Feedback</span>
         </a>
@@ -120,13 +126,89 @@
 
   <!-- JS Logic -->
   <script>
-    // GeoJSON Boundary Overlay Data
-    const districtGeoJson = {"type":"FeatureCollection","features":[{"type":"Feature","id":1,"geometry":{"type":"Polygon","coordinates":[[[-85.582346335024212,38.349894721565626],[-85.582829586658946,38.350169333348745],[-85.583945112253602,38.350803912582023],[-85.585600992835992,38.351731019487012],[-85.588720114381246,38.353469831569988],[-85.590537621162042,38.354507783697834],[-85.596935324756814,38.358118640667513],[-85.600346135105667,38.36006425819361],[-85.603176524906942,38.361651090764575],[-85.609461065630171,38.365192651182412],[-85.614539157702083,38.368079241400935],[-85.61771324754956,38.369846816180399],[-85.624560244723824,38.373769083942896],[-85.627223227360219,38.375291893322036],[-85.630686039597606,38.377221961829015],[-85.634044778047624,38.378979712479698],[-85.637431015974954,38.380803585040177],[-85.637983158533345,38.375651945673795],[-85.638200995521188,38.374867015596458],[-85.638126235479234,38.37078006997838],[-85.638069224679143,38.367984349123596],[-85.638246674656557,38.364430788886118],[-85.638997531354676,38.361678856415786],[-85.640842122652003,38.357263228243532],[-85.641959772898829,38.354187653687831],[-85.642580663741228,38.351802078174728],[-85.643787335331652,38.347476103701489],[-85.646170795769891,38.342330304009494],[-85.648132976738879,38.338092632225418],[-85.650004077573115,38.333779027633554],[-85.65093816,38.3115],[-85.656318,38.323217],[-85.66011,38.319033],[-85.66642,38.31227],[-85.67085,38.30741],[-85.67364,38.30228],[-85.68863,38.29269],[-85.70019,38.28736],[-85.70362,38.28556],[-85.69757,38.27876],[-85.69363,38.27726],[-85.67894,38.28649],[-85.67249,38.2820],[-85.66852,38.28002],[-85.66243,38.27934],[-85.65702,38.27914],[-85.65771,38.2799],[-85.65554,38.28556],[-85.65665,38.29321],[-85.64816,38.28866],[-85.63725,38.27909],[-85.62977,38.28794],[-85.62382,38.29205],[-85.61755,38.29743],[-85.61400,38.28588],[-85.60439,38.28517],[-85.58678,38.29405],[-85.58053,38.29093],[-85.57193,38.28818],[-85.56695,38.2818],[-85.56396,38.27535],[-85.55872,38.27152],[-85.56564,38.26733],[-85.56578,38.26245],[-85.56955,38.26215],[-85.57361,38.26191],[-85.57716,38.26037],[-85.58692,38.25686],[-85.58231,38.24743],[-85.57651,38.24589],[-85.57658,38.24137],[-85.57663,38.2365],[-85.5767,38.23295],[-85.57732,38.22731],[-85.57446,38.22384],[-85.5689,38.22311],[-85.56287,38.22342],[-85.55677,38.22373],[-85.54985,38.22407],[-85.53827,38.22125],[-85.50644,38.21707],[-85.50366,38.21278],[-85.49737,38.20825],[-85.49128,38.20692],[-85.4888,38.20536],[-85.48798,38.20291],[-85.48823,38.2013],[-85.48848,38.1988],[-85.48934,38.19691],[-85.48918,38.19552],[-85.48823,38.19447],[-85.48676,38.19335],[-85.48266,38.19279],[-85.47997,38.18507],[-85.47905,38.1836],[-85.4773,38.18192],[-85.47556,38.18031],[-85.47394,38.1794],[-85.47163,38.17801],[-85.46873,38.17654],[-85.46643,38.17583],[-85.46546,38.17312],[-85.46822,38.17056],[-85.46946,38.1696],[-85.46995,38.16835],[-85.47036,38.1672],[-85.47148,38.16687],[-85.47253,38.16638],[-85.4739,38.16584],[-85.47538,38.16563],[-85.47666,38.16581],[-85.47757,38.16509],[-85.47949,38.16435],[-85.48175,38.16376],[-85.48227,38.16305],[-85.48298,38.16181],[-85.48377,38.16116],[-85.4847,38.16078],[-85.48594,38.15986],[-85.48739,38.15941],[-85.49025,38.15868],[-85.49008,38.15447],[-85.49031,38.15294],[-85.48924,38.1530],[-85.48837,38.15275],[-85.48722,38.1525],[-85.48625,38.15204],[-85.48525,38.15182],[-85.48401,38.1521],[-85.48275,38.15242],[-85.48168,38.15234],[-85.48068,38.15215],[-85.47964,38.1526],[-85.47876,38.1532],[-85.47798,38.1537],[-85.47692,38.15384],[-85.47612,38.15422],[-85.47513,38.15462],[-85.47462,38.15461],[-85.47347,38.15469],[-85.47255,38.15489],[-85.47209,38.1552],[-85.4708,38.15581],[-85.46914,38.15593],[-85.46813,38.15597],[-85.46717,38.15551],[-85.46615,38.15542],[-85.46512,38.15529],[-85.46419,38.15542],[-85.46087,38.15622],[-85.45999,38.15653],[-85.45894,38.15672],[-85.45834,38.15723],[-85.45741,38.15747],[-85.45556,38.15817],[-85.45448,38.15837],[-85.45351,38.15809],[-85.45252,38.15823],[-85.45166,38.158],[-85.45057,38.15812],[-85.44968,38.15831],[-85.44881,38.15809],[-85.44778,38.15767],[-85.44682,38.15742],[-85.4458,38.15731],[-85.4448,38.15738],[-85.44389,38.15685],[-85.44295,38.15632],[-85.44187,38.15647],[-85.44011,38.15589],[-85.43889,38.15502],[-85.43699,38.15373],[-85.43474,38.15226],[-85.43263,38.15089],[-85.43075,38.14965],[-85.42902,38.14843],[-85.42822,38.14768],[-85.42654,38.14562],[-85.42453,38.14339],[-85.42333,38.14987],[-85.41941,38.17355],[-85.41586,38.19488],[-85.41209,38.21759],[-85.4100,38.2301],[-85.40663,38.25067],[-85.3813,38.25776],[-85.38225,38.26797],[-85.38873,38.27789],[-85.395,38.27815],[-85.3969,38.27736],[-85.39854,38.27628],[-85.40035,38.27497],[-85.40241,38.27431],[-85.40456,38.27426],[-85.40872,38.27432],[-85.41028,38.2769],[-85.41159,38.27849],[-85.41742,38.28708],[-85.41906,38.28551],[-85.42061,38.27958],[-85.42287,38.27939],[-85.42783,38.28039],[-85.43017,38.28195],[-85.44107,38.27677],[-85.46637,38.28534],[-85.46828,38.28613],[-85.46942,38.28676],[-85.47028,38.28722],[-85.47593,38.2903],[-85.48059,38.29286],[-85.48488,38.2952],[-85.48603,38.29583],[-85.48732,38.29653],[-85.48847,38.29715],[-85.48904,38.29746]]]]}}];
+    // Validated GeoJSON Boundary Overlay Data
+    const districtGeoJson = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": { "name": "AMFEMS Jurisdiction" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [-85.582346, 38.349894], [-85.585600, 38.351731], [-85.590537, 38.354507], 
+              [-85.596935, 38.358118], [-85.603176, 38.361651], [-85.609461, 38.365192], 
+              [-85.617713, 38.369846], [-85.624560, 38.373769], [-85.630686, 38.377221], 
+              [-85.637431, 38.380803], [-85.638200, 38.374867], [-85.638069, 38.367984], 
+              [-85.638997, 38.361678], [-85.641959, 38.354187], [-85.643787, 38.347476], 
+              [-85.648132, 38.338092], [-85.650938, 38.311500], [-85.660110, 38.319033], 
+              [-85.670850, 38.307410], [-85.688630, 38.292690], [-85.703620, 38.285560], 
+              [-85.693630, 38.277260], [-85.672490, 38.282000], [-85.662430, 38.279340], 
+              [-85.655540, 38.285560], [-85.637250, 38.279090], [-85.623820, 38.292050], 
+              [-85.614000, 38.285880], [-85.586780, 38.294050], [-85.571930, 38.288180], 
+              [-85.558720, 38.271520], [-85.565780, 38.262450], [-85.577160, 38.260370], 
+              [-85.582310, 38.247430], [-85.576700, 38.232950], [-85.568900, 38.223110], 
+              [-85.549850, 38.224070], [-85.506440, 38.217070], [-85.491280, 38.206920], 
+              [-85.488230, 38.201300], [-85.489180, 38.195520], [-85.482660, 38.192790], 
+              [-85.477300, 38.181920], [-85.471630, 38.178010], [-85.465460, 38.173120], 
+              [-85.469950, 38.168350], [-85.472530, 38.166380], [-85.476660, 38.165810], 
+              [-85.481750, 38.163760], [-85.483770, 38.161160], [-85.487390, 38.159410], 
+              [-85.490080, 38.154470], [-85.487220, 38.152500], [-85.484010, 38.152100], 
+              [-85.480680, 38.152150], [-85.477980, 38.153700], [-85.475130, 38.154620], 
+              [-85.472550, 38.154890], [-85.468130, 38.155970], [-85.465120, 38.155290], 
+              [-85.459990, 38.156530], [-85.457410, 38.157470], [-85.453510, 38.158090], 
+              [-85.450570, 38.158120], [-85.447780, 38.157670], [-85.444800, 38.157380], 
+              [-85.441870, 38.156470], [-85.436990, 38.153730], [-85.430750, 38.149650], 
+              [-85.426540, 38.145620], [-85.423330, 38.149870], [-85.415860, 38.194880], 
+              [-85.410000, 38.230100], [-85.381300, 38.257760], [-85.388730, 38.277890], 
+              [-85.398540, 38.276280], [-85.404560, 38.274260], [-85.410280, 38.276900], 
+              [-85.417420, 38.287080], [-85.420610, 38.279580], [-85.427830, 38.280390], 
+              [-85.441070, 38.276770], [-85.468280, 38.286130], [-85.470280, 38.287220], 
+              [-85.480590, 38.292860], [-85.486030, 38.295830], [-85.489040, 38.297460],
+              [-85.582346, 38.349894]
+            ]]
+          }
+        }
+      ]
+    };
 
     let map;
     let geoJsonLayer;
     let marker;
 
+    function initMap() {
+      // Create Leaflet instance
+      map = L.map('map').setView([38.25, -85.55], 11);
+
+      // OpenStreetMap Base Tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Render AMFEMS Polygon Overlay
+      geoJsonLayer = L.geoJSON(districtGeoJson, {
+        style: {
+          color: '#2563EB',       // Blue primary border
+          weight: 2,
+          opacity: 0.9,
+          fillColor: '#3B82F6',   // Blue tint
+          fillOpacity: 0.25
+        }
+      }).addTo(map);
+
+      // Fit map bounds to district boundary
+      if (geoJsonLayer.getBounds().isValid()) {
+        map.fitBounds(geoJsonLayer.getBounds());
+      }
+
+      // Invalidate size to guarantee tile rendering inside hidden/flex DOM structures
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 250);
+    }
+
+    // Initialize map on DOM Ready
     window.addEventListener('DOMContentLoaded', () => {
       initMap();
 
@@ -136,29 +218,6 @@
         }
       });
     });
-
-    function initMap() {
-      // Centered on St. Matthews / Louisville service area
-      map = L.map('map').setView([38.25, -85.62], 11);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-
-      // Render Service District GeoJSON Overlay with blue theme matching reference image
-      geoJsonLayer = L.geoJSON(districtGeoJson, {
-        style: {
-          color: '#2563EB',       // Blue border
-          weight: 2,
-          opacity: 0.9,
-          fillColor: '#3B82F6',   // Semi-transparent blue fill
-          fillOpacity: 0.25
-        }
-      }).addTo(map);
-
-      map.fitBounds(geoJsonLayer.getBounds());
-    }
 
     async function verifyAddress() {
       const address = document.getElementById('addressInput').value.trim();
@@ -182,6 +241,7 @@
         const lon = parseFloat(topResult.lon);
         const displayName = topResult.display_name;
 
+        // Perform Point-in-Polygon check via Turf
         const point = turf.point([lon, lat]);
         const polygonFeature = districtGeoJson.features[0];
         const isInDistrict = turf.booleanPointInPolygon(point, polygonFeature);
@@ -213,13 +273,13 @@
         statusBadgeIcon.className = "text-2xl text-emerald-600";
         statusBadgeIcon.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
         statusBadge.className = "text-xs font-bold uppercase tracking-wider text-emerald-700";
-        statusBadge.textContent = "Within STMFDKY District Boundary";
+        statusBadge.textContent = "Within AMFEMS District Boundary";
       } else {
         resultCard.className = "bg-amber-50 border-amber-200 rounded-md p-4 border transition-all duration-300";
         statusBadgeIcon.className = "text-2xl text-amber-600";
         statusBadgeIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
         statusBadge.className = "text-xs font-bold uppercase tracking-wider text-amber-700";
-        statusBadge.textContent = "Outside STMFDKY District Boundary";
+        statusBadge.textContent = "Outside AMFEMS District Boundary";
       }
 
       map.setView([lat, lon], 14);
@@ -229,8 +289,10 @@
       }
 
       marker = L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<b>${inDistrict ? 'Inside District' : 'Outside District'}</b><br>${address}`)
+        .bindPopup(`<b>${inDistrict ? 'Inside AMFEMS' : 'Outside AMFEMS'}</b><br>${address}`)
         .openPopup();
+        
+      map.invalidateSize();
     }
   </script>
 </body>
