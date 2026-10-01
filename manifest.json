@@ -1,21 +1,23 @@
 {
-  "short_name": "VERITAS",
+  "id": "/AMFEMS-VERITAS/",
   "name": "AMFEMS VERITAS",
+  "short_name": "VERITAS",
+  "description": "AMFEMS EMS District Boundary Verifier",
+  "start_url": "/AMFEMS-VERITAS/index.html",
+  "scope": "/AMFEMS-VERITAS/",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#0d233a",
   "icons": [
     {
-      "src": "icons/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ],
-  "start_url": "./index.html",
-  "background_color": "#0056b3",
-  "theme_color": "#0056b3",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }
