@@ -82,7 +82,7 @@
             margin-bottom: 15px;
         }
 
-        /* Input Controls */
+        /* Input Box with St. Matthews Clear Button Overlay */
         .search-box {
             display: flex;
             gap: 10px;
@@ -105,31 +105,22 @@
             font-size: 14px;
         }
 
-        /* Fixed Clear Button Overlapping Input */
-        .input-clear-btn {
+        .clear-btn {
             position: absolute;
             right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #cbd5e1;
+            background: none;
             border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            color: #475569;
+            font-size: 18px;
+            color: #a0aec0;
             cursor: pointer;
-            display: none; /* Toggled dynamically */
-            align-items: center;
-            justify-content: center;
-            padding: 0;
+            display: none;
+            padding: 0 4px;
             line-height: 1;
-            z-index: 99;
+            z-index: 10;
         }
 
-        .input-clear-btn:hover {
-            background: #94a3b8;
-            color: #0f172a;
+        .clear-btn:hover {
+            color: #4a5568;
         }
 
         button.action-btn { 
@@ -149,7 +140,7 @@
             background-color: #002244;
         }
 
-        /* Status Result Banner & Action Button */
+        /* Status Result Banner */
         #statusBanner {
             display: none;
             padding: 14px;
@@ -363,7 +354,7 @@
     <div class="search-box">
         <div class="input-container">
             <input id="autocomplete" type="text" placeholder="Enter address to check...">
-            <button id="clearBtn" class="input-clear-btn" onclick="clearAddressInput()" title="Clear Address">✖</button>
+            <button id="clearInputBtn" class="clear-btn" onclick="clearAddressInput()" title="Clear Address">✖</button>
         </div>
         <button class="action-btn" onclick="verifyAddress()">Verify Address</button>
     </div>
@@ -405,7 +396,6 @@
 </div>
 
 <script>
-    // Service Worker Registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -458,20 +448,25 @@
         autocomplete.bindTo("bounds", map);
         autocomplete.addListener("place_changed", verifyAddress);
 
-        // Listen for user typing directly into the input
-        input.addEventListener("input", toggleClearButton);
-        input.addEventListener("keyup", toggleClearButton);
+        // Explicit DOM event listeners so button appears during manual typing/pasting
+        input.addEventListener("input", updateClearBtnVisibility);
+        input.addEventListener("keyup", updateClearBtnVisibility);
+        input.addEventListener("change", updateClearBtnVisibility);
     }
 
-    function toggleClearButton() {
+    function updateClearBtnVisibility() {
         const input = document.getElementById("autocomplete");
-        const clearBtn = document.getElementById("clearBtn");
-        clearBtn.style.display = input.value.trim().length > 0 ? "flex" : "none";
+        const clearBtn = document.getElementById("clearInputBtn");
+        if (input.value && input.value.trim().length > 0) {
+            clearBtn.style.display = "block";
+        } else {
+            clearBtn.style.display = "none";
+        }
     }
 
     function clearAddressInput() {
         const input = document.getElementById("autocomplete");
-        const clearBtn = document.getElementById("clearBtn");
+        const clearBtn = document.getElementById("clearInputBtn");
         const banner = document.getElementById("statusBanner");
 
         input.value = "";
@@ -482,7 +477,7 @@
             marker.map = null;
         }
 
-        // Reset map view to full boundary view
+        // Reset map view
         const bounds = new google.maps.LatLngBounds();
         geofenceCoords.forEach(coord => bounds.extend(coord));
         map.fitBounds(bounds);
@@ -500,8 +495,8 @@
 
         const location = place.geometry.location;
 
-        // Force Clear Button to appear immediately when an address is picked from Google suggestions
-        document.getElementById("clearBtn").style.display = "flex";
+        // Force Clear Button visibility when address selected via Autocomplete
+        document.getElementById("clearInputBtn").style.display = "block";
 
         // Center map on search location
         map.setCenter(location);
@@ -532,7 +527,7 @@
             statusText.innerHTML = "❌ OUT OF DISTRICT: Address is OUTSIDE the service area.";
         }
 
-        // Build Navigation URL for Google Maps
+        // Build Navigation URL
         const encodedAddress = encodeURIComponent(place.formatted_address);
         directionsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
         directionsBtn.style.display = "inline-block";
