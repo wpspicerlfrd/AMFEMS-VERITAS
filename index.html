@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMFEMS VERITAS - District Boundary Verifier</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         * {
             box-sizing: border-box;
@@ -364,6 +365,19 @@
 </div>
 
 <script>
+    // Step 3 Integration: Register and force-update Service Workers to ensure fresh manifest.json fetching
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then((registration) => {
+                    registration.update();
+                })
+                .catch((error) => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        });
+    }
+
     let map;
     let geofencePolygon;
     let marker;
@@ -393,7 +407,7 @@
         });
         geofencePolygon.setMap(map);
 
-        // Auto-fit bounds so the entire polygon fits cleanly on screen on load
+        // Auto-fit bounds to frame boundary
         const bounds = new google.maps.LatLngBounds();
         geofenceCoords.forEach(coord => bounds.extend(coord));
         map.fitBounds(bounds);
