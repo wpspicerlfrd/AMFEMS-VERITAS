@@ -82,19 +82,43 @@
             margin-bottom: 15px;
         }
 
-        /* Input Controls */
+        /* Input Controls with Integrated Clear Button */
         .search-box {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
 
-        .search-box input {
+        .input-wrapper {
+            position: relative;
             flex-grow: 1;
-            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 10px 36px 10px 12px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
+        }
+
+        .clear-input-btn {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            color: #888;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            user-select: none;
+            line-height: 1;
+            padding: 2px 4px;
+        }
+
+        .clear-input-btn:hover {
+            color: #333;
         }
 
         .btn-verify {
@@ -106,6 +130,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
+            white-space: nowrap;
         }
 
         .btn-verify:hover {
@@ -324,7 +349,10 @@
     <div class="section-desc">Enter an address to verify if it falls within the AMFEMS service area.</div>
 
     <div class="search-box">
-        <input id="autocomplete" type="text" placeholder="Enter address to check...">
+        <div class="input-wrapper">
+            <input id="autocomplete" type="text" placeholder="Enter address to check..." oninput="toggleClearButton()">
+            <span id="clearInputBtn" class="clear-input-btn" onclick="clearAddressInput()" title="Clear Address">&times;</span>
+        </div>
         <button class="btn-verify" onclick="verifyAddress()">Verify Address</button>
     </div>
 
@@ -365,7 +393,7 @@
 </div>
 
 <script>
-    // Step 3 Integration: Register and force-update Service Workers to ensure fresh manifest.json fetching
+    // Register and update Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -417,6 +445,33 @@
         autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo("bounds", map);
         autocomplete.addListener("place_changed", verifyAddress);
+    }
+
+    function toggleClearButton() {
+        const input = document.getElementById("autocomplete");
+        const clearBtn = document.getElementById("clearInputBtn");
+        clearBtn.style.display = input.value.trim().length > 0 ? "block" : "none";
+    }
+
+    function clearAddressInput() {
+        const input = document.getElementById("autocomplete");
+        const clearBtn = document.getElementById("clearInputBtn");
+        const banner = document.getElementById("statusBanner");
+
+        input.value = "";
+        clearBtn.style.display = "none";
+        banner.style.display = "none";
+
+        if (marker) {
+            marker.map = null;
+        }
+
+        // Reset map view to full boundary view
+        const bounds = new google.maps.LatLngBounds();
+        geofenceCoords.forEach(coord => bounds.extend(coord));
+        map.fitBounds(bounds);
+
+        input.focus();
     }
 
     function verifyAddress() {
@@ -493,10 +548,8 @@
         const qrContainer = document.getElementById("qrCodeContainer");
         const currentUrl = window.location.href;
 
-        // Generate QR code dynamically via Google Charts API
         qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}" alt="App QR Code" />`;
 
-        // Check for Web Share API support
         if (navigator.share) {
             document.getElementById("nativeShareBtn").style.display = "inline-block";
         }
