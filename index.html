@@ -314,7 +314,7 @@
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <span class="nav-tab active" onclick="switchTab('verifier')">District Verifier</span>
+        <span class="nav-tab active">District Verifier</span>
         <span class="nav-tab" onclick="openShareModal()">Share App</span>
     </div>
 
@@ -377,8 +377,8 @@
 
         // Initialize Map
         map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 12,
-            center: geofenceCoords[0] || { lat: 38.25, lng: -85.6 },
+            zoom: 10,
+            center: { lat: 38.3, lng: -85.5 },
             mapId: "DEMO_MAP_ID"
         });
 
@@ -392,6 +392,11 @@
             fillOpacity: 0.35,
         });
         geofencePolygon.setMap(map);
+
+        // Auto-fit bounds so the entire polygon fits cleanly on screen on load
+        const bounds = new google.maps.LatLngBounds();
+        geofenceCoords.forEach(coord => bounds.extend(coord));
+        map.fitBounds(bounds);
 
         // Setup Places Autocomplete
         const input = document.getElementById("autocomplete");
